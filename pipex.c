@@ -6,55 +6,66 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 10:23:10 by jtuomi            #+#    #+#             */
-/*   Updated: 2025/01/31 13:08:59 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/03 16:30:09 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include "pipex.h"
 
-static void	validate_open_pipe_pid(int fd[2], int pipefd, pid_t pid);
+static void	validate_open_pipe(int fd[2], int check, pid_t pid[2]);
 static void	plumbing(int fd[2], int pipefd[2], pid_t pid, char **argv);
+static char ***parse_args(char **argv, int argc);
+static void free_close_and_print_error(t_pipe *pipe);
 
-int	main(int argc, char *argv[])
+int	main(int argc, char *argv[], char *envp[])
 {
-	int		fd[2];
-	int		pipefd[2];
-	int		check;
-	pid_t	pid[2];
+	t_pipe  pipe;
 
-	if (argc < 5)
+	if (argc != 5 && argv[1] && argv[2] && argv[3] && argv[4])
+		exit(perror("Usage: pipex <file> <cmd> <cmd> <file>\n", EXIT_FAILURE));
+	else if (*envp == NULL)
+		exit(perror("No enviroment pointer.\n"), EXIT_FAILURE);
+	pipe.cmd = parse_args(argv, argc);
+	pipe.fd[0] = open(argv[1], O_RDONLY);
+	pipe.fd[1] = open(argv[argc - 1], O_WRONLY);
+	pipe.check = pipe(pipe.pfd);
+	validate_open_pipe_pid_child_cmds(pipe.fd, pipe.check, pipe.pid);
+	plumbing(&pipe, &argv[1])
+}
+
+static char ***parse_args(char **argv)
+{
+	char ***cmd;
+	int i;
+	int i1;
+
+	i = 2;
+	i1 = 0;
+	cmd = malloc(sizeof(char ***) * (argc - 3));
+	if (!cmd)
+		return (NULL);
+	while(argv[i])
+		cmd[i1++] = ft_split(argv[i++], ' ');
+}
+
+static void	plumbing(t_pipe *pipe, char **argv)
+{
+	int i;
+
+	i = 0;
+	pipe->fd[0]
+	while(i < cmds)
 	{
-		perror("Usage: pipex <file> <command> ... <command> <file>\n");
-		exit(EXIT_FAILURE);
+		subprocess(pipe, fork(), false, i++);
+		subprocess(pipe, fork(), true, i++);
 	}
-	fd[0] = open(argv[1], O_RDWR);
-	fd[1] = open(argv[argc - 1], O_RDWR);
-	check = pipe(pipefd);
-	pid[0] = fork();
-	pid[1] = fork();
-	validate_open_pipe_pid(fd, check, pid);
-	plumbing(fd, pipefd, pid, &argv[1])
+	close(pipe->pfd[0]);
+	close(pipe->pfd[1]);
+	while ()
 }
 
-t_command	new_command(t_command command)
-{
-	command = (t_command)
-	{
-		.path = arr[BUFSIZ], .args = NULL, arg_len = 0, .fd_in = STDIN_FILENO,
-			.fd_out = STDIN_FILENO
-	}
-	return (command);
-}
-
-static void	plumbing(int fd[2], int pipefd[2], pid_t pid, char **argv)
-{
-	// TODO: pipe file 1 to stdout for execve of cmd 1
-	// TODO: pipe output of cmd 1 to stdout for cmd 2 to read
-	// TODO: read stdin and write to file 2
-}
-
-static void	validate_open_pipe_pid(int fd[2], int pipefd, pid_t pid)
+static void	validate_open_pipe(int fd[2], int pipe)
 {
 	if (fd[0] < 0 || fd[1] < 0)
 	{
@@ -65,14 +76,14 @@ static void	validate_open_pipe_pid(int fd[2], int pipefd, pid_t pid)
 		perror("open");
 		exit(EXIT_FAILURE);
 	}
-	else if (pipefd == -1)
+	else if (pipe == -1)
 	{
 		close(fd[1]);
 		close(fd[0]);
 		perror("fork");
 		exit(EXIT_FAILURE);
 	}
-	else if (pid)
+	else if (pid[0] && pid[1])
 	{
 		perror("fork");
 		exit(EXIT_FAILURE);

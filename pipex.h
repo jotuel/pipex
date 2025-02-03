@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/01/31 12:59:37 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/01/31 13:05:05 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/02 18:21:06 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 #ifndef PIPEX_H
@@ -14,22 +14,20 @@
 # include <errno.h>
 # include <fcntl.h>
 # include <limits.h>
-# include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <unistd.h>
 
-typedef struct s_command
+typedef struct s_pipe
 {
-	char	*path;
-	char	**args;
-	int		arg_len;
-	int		fd_in;
-	int		fd_out;
-}			t_command;
+	char ***cmd;
+	int fd[2];
+	int pfd[2];
+	int check;
+	pid_t pid[2];
+} t_pipe;
 
-t_command	new_command(t_command command);
 int			open_pipex(const char *pipex_path);
 void		close_pipex(int fd);
 int			read_pipex(int fd, void *buf, size_t count);
