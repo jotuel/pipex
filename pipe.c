@@ -6,11 +6,13 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/02/02 18:12:35 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/06 19:38:03 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/06 19:51:45 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "libft/libft.h"
 #include "pipex.h"
+#include <unistd.h>
 
 static void	free_all(t_pipe *pipe)
 {
@@ -55,10 +57,32 @@ pid_t	subprocess(t_pipe *pipe, pid_t pid, bool dest, int nth)
 bool commands_in_path(t_pipe *pipex)
 {
 	char **path;
+	char *cmdp;
+	char *cmdp1;
 	int i;
 
 	i = 0;
 	while(pipex->envp[i])
 		ft_strnstr(pipex->envp[i++], "PATH", 4);
-	path = ft_split(pipex->envp[i - 1], ':');
+	path = ft_split(&pipex->envp[i - 1][6], ':');
+	i = 0;
+	while(path[i])
+	{
+		cmdp = ft_strjoin(path[i], pipex->cmd[0][0]);
+		cmdp1 = ft_strjoin(path[i], pipex->cmd[1][0]);
+		if (!access(cmdp, X_OK))
+		{
+			free(pipex->cmd[0][0]);
+			pipex->cmd[0][0] = cmdp;
+		}
+		else
+			free(cmdp);
+		if (!access(cmdp1, X_OK))
+		{
+			free(pipex->cmd[1][0]);
+			pipex->cmd[1][0] = cmdp1;
+		}
+		else
+			free(cmdp1);
+	}
 }
