@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 10:23:10 by jtuomi            #+#    #+#             */
-/*   Updated: 2025/02/05 18:22:01 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/06 20:11:51 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ extern char const	**environ;
 static void			validate_open_pipe(int fd[2], int pipe);
 static void			plumbing(t_pipe *pipe, int cmds);
 static char			***parse_args(char **argv, int argc);
-static void			free_close_and_print_error(t_pipe *pipe, bool print,
-						int error_nbr);
 
 int	main(int argc, char *argv[], char *envp[])
 {
@@ -38,6 +36,7 @@ int	main(int argc, char *argv[], char *envp[])
 	pipex.fd[1] = open(argv[argc - 1], O_CREAT, 0644, O_WRONLY);
 	pipex.check = pipe(&pipex.pfd[2]);
 	validate_open_pipe(pipex.fd, pipex.check);
+	commands_in_path(&pipex, 0, NULL, NULL);
 	plumbing(&pipex, argc - 3);
 }
 
@@ -96,11 +95,4 @@ static void	validate_open_pipe(int fd[2], int pipe)
 		perror("pipe");
 		exit(EXIT_FAILURE);
 	}
-}
-
-static void	free_close_and_print_error(t_pipe *pipe, bool print, int error_nbr)
-{
-	(void)pipe;
-	(void)print;
-	(void)error_nbr;
 }
