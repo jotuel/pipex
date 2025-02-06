@@ -6,7 +6,7 @@
 #    By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/14 13:14:15 by jtuomi            #+#    #+#              #
-#    Updated: 2024/12/04 15:01:31 by jtuomi           ###   ########.fr        #
+#    Updated: 2025/02/06 20:31:31 by jtuomi           \__/    i                #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,8 @@ INCLUDE_DIRS = libft
 INCLUDE = Makefile
 CFLAGS = -Wall -Wextra -Werror -g2
 SRC = pipex.c \
-	pipe.c
+	pipe.c \
+	utils.c
 OBJ := $(SRC:%.c=%.o)
 MAKE = make -C
 NAME = pipex

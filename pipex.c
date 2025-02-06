@@ -6,11 +6,10 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 10:23:10 by jtuomi            #+#    #+#             */
-/*   Updated: 2025/02/06 20:11:51 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/06 20:46:34 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft/libft.h"
 #include "pipex.h"
 
 extern char const	**environ;
@@ -67,6 +66,7 @@ static void	plumbing(t_pipe *pipe, int cmds)
 	while (i < cmds)
 	{
 		pipe->pid[0] = subprocess(pipe, fork(), false, i++);
+		waitpid(pipe->pid[0], &stat, WNOHANG);
 		pipe->pid[1] = subprocess(pipe, fork(), true, i++);
 	}
 	dup2(pipe->fd[1], STDOUT_FILENO);
@@ -74,7 +74,8 @@ static void	plumbing(t_pipe *pipe, int cmds)
 	close(pipe->pfd[0]);
 	close(pipe->pfd[1]);
 	waitpid(pipe->pid[0], &stat, WNOHANG);
-	free_close_and_print_error(pipe, false, 0);
+	free_all(pipe);
+	exit(WEXITSTATUS(stat));
 }
 
 static void	validate_open_pipe(int fd[2], int pipe)

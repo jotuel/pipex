@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/02/02 18:12:35 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/06 20:03:57 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/06 20:46:33 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,20 @@
 
 void	free_all(t_pipe *pipex)
 {
-	(void)pipex;
-	// TODO: actually free everything; cmds mostly
+	int i;
+
+	i = 0;
+	while(pipex->cmd[0][i])
+		free(pipex->cmd[0][i++]);
+	free(pipex->cmd[0][i]);
+	i = 0;
+	while(pipex->cmd[1][i])
+		free(pipex->cmd[1][i++]);
+	free(pipex->cmd[1][i]);
+	i = 0;
+	while(pipex->path[i])
+		free(pipex->path[i++]);
+	free(pipex->path[i]);
 }
 
 void	dest_subprocess(t_pipe *pipex, char **cmd, char **envp)
@@ -51,13 +63,9 @@ pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 		return (pid);
 	exit(errno);
 }
-
 bool commands_in_path(t_pipe *pipex, int i, char *cmdp, char *cmdp1)
 {
-	while(pipex->envp[i])
-		ft_strnstr(pipex->envp[i++], "PATH", 4);
-	pipex->path = ft_split(&pipex->envp[i - 1][6], ':');
-	i = 0;
+	util_parse_args(pipex);
 	while(pipex->path[i])
 	{
 		cmdp = ft_strjoin(pipex->path[i], pipex->cmd[0][0]);
