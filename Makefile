@@ -14,24 +14,16 @@ AR = ar rcs
 CC = cc
 INCLUDE_DIRS = libft
 INCLUDE = Makefile
-CFLAGS = -Wall -Wextra -Werror
-SRC = pipex.c
-SRCS =	ft_atoi.c \
-	ft_ldiv.c \
-	ft_ltostr.c \
-	ft_strlen.c \
-	ft_printf.c \
-	specifiers.c \
-	more_specifiers.c
+CFLAGS = -Wall -Wextra -Werror -g2
+SRC = pipex.c \
+	pipe.c
 OBJ := $(SRC:%.c=%.o)
-OBJS := $(addprefix libft/, :%.c=%.o)
-OBJ_ALL := $(OBJ) $(OBJS)
 MAKE = make -C
-NAME = libftprintf.a
+NAME = pipex
 
 all: $(NAME)
 $(NAME) : $(OBJ) libft.a
-	$(AR) $(NAME) $(OBJ_ALL)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -L $(INCLUDE_DIRS) -lft
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 libft.a:

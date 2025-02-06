@@ -6,38 +6,59 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/02/02 18:12:35 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/03 16:30:09 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/06 19:38:03 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void dest_subprocess(t_pipe *pipe, char **cmd, char **envp)
+static void	free_all(t_pipe *pipe)
 {
-    dup2(pipe->pfd[0], STDIN_FILENO);
-    close(pipe->pfd[1]);
-    free_all(pipe);
-    execve(cmd[0], cmd, envp);
-    perror(cmd);
+	(void)pipe;
+	// TODO: actually free everything; cmds mostly
 }
 
-void src_subprocess(t_pipe *pipe, char **cmd, char **envp)
+void	dest_subprocess(t_pipe *pipe, char **cmd, char **envp)
 {
-    dup2(pipe->pfd[1], STDOUT_FILENO);
-    close(pfd[1]);
-    free_all(pipe);
-    execve(cmd[0], cmd, envp);
-    perror(cmd);
+	dup2(pipe->pfd[0], STDIN_FILENO);
+	close(pipe->pfd[0]);
+	free_all(pipe);
+	if (-1 == execve(cmd[0], cmd, envp))
+		perror("execve");
+	exit(errno);
 }
 
-pid_t subprocess(t_pipe *pipe, pid_t pid, bool dest, int nth)
+void	src_subprocess(t_pipe *pipe, char **cmd, char **envp)
 {
-    if (!pid)
-        if (!dest)
-            src_subprocess(pipe, pipe->cmd[nth], pipe->envp);
-        else
-            dest_subprocess(pipe, pipe->cmd[nth], pipe->envp);
-    else if (pid == -1)
-        exit(perror(strerror(errno)), EXIT_FAILURE);
-    return (pid);
+	dup2(pipe->pfd[1], STDOUT_FILENO);
+	close(pipe->pfd[1]);
+	free_all(pipe);
+	if (-1 == execve(cmd[0], cmd, envp))
+		perror("execve");
+	exit(errno);
+}
+
+pid_t	subprocess(t_pipe *pipe, pid_t pid, bool dest, int nth)
+{
+	if (!pid)
+		if (!dest)
+			src_subprocess(pipe, pipe->cmd[nth], pipe->envp);
+		else
+			dest_subprocess(pipe, pipe->cmd[nth], pipe->envp);
+	else if (pid == -1)
+		perror("fork");
+	else
+		return (pid);
+	exit(errno);
+}
+
+bool commands_in_path(t_pipe *pipex)
+{
+	char **path;
+	int i;
+
+	i = 0;
+	while(pipex->envp[i])
+		ft_strnstr(pipex->envp[i++], "PATH", 4);
+	path = ft_split(pipex->envp[i - 1], ':');
 }
