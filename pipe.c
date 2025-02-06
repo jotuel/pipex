@@ -6,47 +6,45 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/02/02 18:12:35 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/06 19:51:45 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/06 20:03:57 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft/libft.h"
 #include "pipex.h"
-#include <unistd.h>
 
-static void	free_all(t_pipe *pipe)
+void	free_all(t_pipe *pipex)
 {
-	(void)pipe;
+	(void)pipex;
 	// TODO: actually free everything; cmds mostly
 }
 
-void	dest_subprocess(t_pipe *pipe, char **cmd, char **envp)
+void	dest_subprocess(t_pipe *pipex, char **cmd, char **envp)
 {
-	dup2(pipe->pfd[0], STDIN_FILENO);
-	close(pipe->pfd[0]);
-	free_all(pipe);
+	dup2(pipex->pfd[0], STDIN_FILENO);
+	close(pipex->pfd[0]);
+	free_all(pipex);
 	if (-1 == execve(cmd[0], cmd, envp))
 		perror("execve");
 	exit(errno);
 }
 
-void	src_subprocess(t_pipe *pipe, char **cmd, char **envp)
+void	src_subprocess(t_pipe *pipex, char **cmd, char **envp)
 {
-	dup2(pipe->pfd[1], STDOUT_FILENO);
-	close(pipe->pfd[1]);
-	free_all(pipe);
+	dup2(pipex->pfd[1], STDOUT_FILENO);
+	close(pipex->pfd[1]);
+	free_all(pipex);
 	if (-1 == execve(cmd[0], cmd, envp))
 		perror("execve");
 	exit(errno);
 }
 
-pid_t	subprocess(t_pipe *pipe, pid_t pid, bool dest, int nth)
+pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 {
 	if (!pid)
 		if (!dest)
-			src_subprocess(pipe, pipe->cmd[nth], pipe->envp);
+			src_subprocess(pipex, pipex->cmd[nth], pipex->envp);
 		else
-			dest_subprocess(pipe, pipe->cmd[nth], pipe->envp);
+			dest_subprocess(pipex, pipex->cmd[nth], pipex->envp);
 	else if (pid == -1)
 		perror("fork");
 	else
@@ -54,22 +52,16 @@ pid_t	subprocess(t_pipe *pipe, pid_t pid, bool dest, int nth)
 	exit(errno);
 }
 
-bool commands_in_path(t_pipe *pipex)
+bool commands_in_path(t_pipe *pipex, int i, char *cmdp, char *cmdp1)
 {
-	char **path;
-	char *cmdp;
-	char *cmdp1;
-	int i;
-
-	i = 0;
 	while(pipex->envp[i])
 		ft_strnstr(pipex->envp[i++], "PATH", 4);
-	path = ft_split(&pipex->envp[i - 1][6], ':');
+	pipex->path = ft_split(&pipex->envp[i - 1][6], ':');
 	i = 0;
-	while(path[i])
+	while(pipex->path[i])
 	{
-		cmdp = ft_strjoin(path[i], pipex->cmd[0][0]);
-		cmdp1 = ft_strjoin(path[i], pipex->cmd[1][0]);
+		cmdp = ft_strjoin(pipex->path[i], pipex->cmd[0][0]);
+		cmdp1 = ft_strjoin(pipex->path[i], pipex->cmd[1][0]);
 		if (!access(cmdp, X_OK))
 		{
 			free(pipex->cmd[0][0]);
@@ -85,4 +77,7 @@ bool commands_in_path(t_pipe *pipex)
 		else
 			free(cmdp1);
 	}
+	if (!(access(pipex->cmd[0][0], X_OK) && access(pipex->cmd[1][0], X_OK)))
+		return (true);
+	return (false);
 }

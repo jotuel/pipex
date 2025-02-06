@@ -6,9 +6,10 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/01/31 12:59:37 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/06 17:58:36 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/06 20:02:49 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
+
 #ifndef PIPEX_H
 # define PIPEX_H
 # include <errno.h>
@@ -27,13 +28,16 @@ typedef struct s_pipe
 {
 	char ***cmd;
 	char **envp;
+	char **path;
 	int fd[2];
 	int pfd[2];
 	int check;
 	pid_t pid[2];
 } t_pipe;
 
-void		src_subprocess(t_pipe *pipe, char **cmd, char **envp);
-void		dest_subprocess(t_pipe *pipe, char **cmd, char **envp);
-pid_t		subprocess(t_pipe *pipe, pid_t pid, bool dest, int nth);
+bool        commands_in_path(t_pipe *pipex, int i, char *cmdp, char *cmdp1);
+void		src_subprocess(t_pipe *pipex, char **cmd, char **envp);
+void		dest_subprocess(t_pipe *pipex, char **cmd, char **envp);
+void        free_all(t_pipe *pipex);
+pid_t		subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth);
 #endif
