@@ -12,7 +12,7 @@
 
 #include "pipex.h"
 
-bool open_or_create_file(t_pipe *pipex)
+bool	open_or_create_file(t_pipe *pipex)
 {
-    return (true);
+	return (true);
 }

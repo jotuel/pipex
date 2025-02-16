@@ -40,7 +40,7 @@ int	ft_printf(const char *fmt, ...)
 
 int	handle_specifier(va_list ap, const char fmt)
 {
-	char c;
+	char	c;
 
 	c = '%';
 	if (fmt == 'c')

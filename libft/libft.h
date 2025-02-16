@@ -14,10 +14,10 @@
 # define LIBFT_H
 # define BASE32 "0123456789abcdefghijklmnopqrstuxz"
 # include <limits.h>
+# include <stdarg.h>
 # include <stdint.h>
 # include <stdlib.h>
 # include <unistd.h>
-# include <stdarg.h>
 
 typedef struct s_ldiv
 {
@@ -86,15 +86,14 @@ t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
 						void (*del)(void *));
 t_ldiv				ft_ldiv(long nbr, unsigned int base);
 
-int	ft_printf(const char *fmt, ...);
-int	writer(char *str, int len, int written);
-int	handle_specifier(va_list ap, const char fmt);
-int	handle_s(va_list ap);
-int	handle_ptr(va_list ap);
-int	handle_dec(va_list ap);
-int	handle_udec(va_list ap);
-int	handle_hex_lf(va_list ap);
-int	handle_hex_uf(va_list ap);
-
+int					ft_printf(const char *fmt, ...);
+int					writer(char *str, int len, int written);
+int					handle_specifier(va_list ap, const char fmt);
+int					handle_s(va_list ap);
+int					handle_ptr(va_list ap);
+int					handle_dec(va_list ap);
+int					handle_udec(va_list ap);
+int					handle_hex_lf(va_list ap);
+int					handle_hex_uf(va_list ap);
 
 #endif

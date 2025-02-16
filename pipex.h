@@ -12,33 +12,33 @@
 
 #ifndef PIPEX_H
 # define PIPEX_H
+# include "libft/libft.h"
 # include <errno.h>
 # include <fcntl.h>
 # include <limits.h>
+# include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include <unistd.h>
-# include <sys/wait.h>
 # include <sys/stat.h>
-# include <stdbool.h>
-# include "libft/libft.h"
+# include <sys/wait.h>
+# include <unistd.h>
 
 typedef struct s_pipe
 {
-	char ***cmd;
-	char **envp;
-	char **path;
-	int fd[2];
-	int pfd[2];
-	int check;
-	pid_t pid[2];
-} t_pipe;
+	char	***cmd;
+	char	**envp;
+	char	**path;
+	int		fd[2];
+	int		pfd[2];
+	int		check;
+	pid_t	pid[2];
+}			t_pipe;
 
-bool        commands_in_path(t_pipe *pipex, int i, int i1, char *cmdp);
-void        util_parse_args(t_pipe *pipex);
+bool		commands_in_path(t_pipe *pipex, int i, int i1, char *cmdp);
+void		util_parse_args(t_pipe *pipex);
 void		src_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
 void		dest_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
-void        free_all(t_pipe *pipex);
+void		free_all(t_pipe *pipex);
 pid_t		subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth);
 #endif

@@ -6,14 +6,13 @@
 #    By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/14 13:14:15 by jtuomi            #+#    #+#              #
-#    Updated: 2025/02/06 20:31:31 by jtuomi           \__/    i                #
+#    Updated: 2025/02/16 18:51:29 by jtuomi           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 AR = ar rcs
 CC = cc
 INCLUDE_DIRS = libft
-INCLUDE = Makefile
 CFLAGS = -Wall -Wextra -Werror -g2
 SRC = pipex.c \
 	pipe.c \
@@ -21,13 +20,14 @@ SRC = pipex.c \
 OBJ := $(SRC:%.c=%.o)
 MAKE = make -C
 NAME = pipex
+LIBFT = ./libft/libft.a
 
 all: $(NAME)
-$(NAME) : $(OBJ) libft/libft.a
+$(NAME) : $(OBJ) $(LIBFT)
 	$(CC) $(CFLAGS) -o $@ $(OBJ) -L $(INCLUDE_DIRS) -lft
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
-/libft/libft.a:
+$(LIBFT):
 	$(MAKE) libft all supp
 clean:
 	$(MAKE) libft clean
