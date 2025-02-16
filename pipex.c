@@ -6,16 +6,15 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 10:23:10 by jtuomi            #+#    #+#             */
-/*   Updated: 2025/02/06 20:46:34 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/16 15:58:10 by jtuomi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
-extern char const	**environ;
+#include <stdlib.h>
 
 static void			validate_open_pipe(int fd[2], int pipe);
-static void			plumbing(t_pipe *pipe, int cmds);
+static void			plumbing(t_pipe *pipe);
 static char			***parse_args(char **argv, int argc);
 
 int	main(int argc, char *argv[], char *envp[])
@@ -35,8 +34,8 @@ int	main(int argc, char *argv[], char *envp[])
 	pipex.fd[1] = open(argv[argc - 1], O_CREAT, 0644, O_WRONLY);
 	pipex.check = pipe(&pipex.pfd[2]);
 	validate_open_pipe(pipex.fd, pipex.check);
-	commands_in_path(&pipex, 0, NULL, NULL);
-	plumbing(&pipex, argc - 3);
+	util_parse_args(&pipex);
+	plumbing(&pipex);
 }
 
 static char	***parse_args(char **argv, int argc)
@@ -55,27 +54,21 @@ static char	***parse_args(char **argv, int argc)
 	return (cmd);
 }
 
-static void	plumbing(t_pipe *pipe, int cmds)
+static void	plumbing(t_pipe *pipe)
 {
-	int	i;
-	int	stat;
+	int	status;
 
-	i = 0;
-	dup2(pipe->fd[0], STDIN_FILENO);
-	close(pipe->fd[0]);
-	while (i < cmds)
-	{
-		pipe->pid[0] = subprocess(pipe, fork(), false, i++);
-		waitpid(pipe->pid[0], &stat, WNOHANG);
-		pipe->pid[1] = subprocess(pipe, fork(), true, i++);
-	}
+	pipe->pid[0] = subprocess(pipe, fork(), false, 0);
+	pipe->pid[1] = subprocess(pipe, fork(), true, 1);
 	dup2(pipe->fd[1], STDOUT_FILENO);
 	close(pipe->fd[1]);
 	close(pipe->pfd[0]);
 	close(pipe->pfd[1]);
-	waitpid(pipe->pid[0], &stat, WNOHANG);
+	waitpid(pipe->pid[0], &status, WNOHANG);
+	waitpid(pipe->pid[1], &status, WNOHANG);
 	free_all(pipe);
-	exit(WEXITSTATUS(stat));
+	if (WIFEXITED(status))
+		exit(WEXITSTATUS(status));
 }
 
 static void	validate_open_pipe(int fd[2], int pipe)

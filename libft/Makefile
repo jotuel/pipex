@@ -11,7 +11,8 @@
 # **************************************************************************** #
 
 CC = cc
-SRCS = ft_atoi.c \
+SRCS = ft_atof.c \
+	ft_atoi.c \
 	ft_bzero.c \
 	ft_calloc.c \
 	ft_isalnum.c \
@@ -43,7 +44,8 @@ SRCS = ft_atoi.c \
 	ft_strtrim.c \
 	ft_substr.c \
 	ft_tolower.c \
-	ft_toupper.c
+	ft_toupper.c \
+	ft_ltostr.c
 BONUS_SRCS = 	ft_lstadd_back_bonus.c \
 	ft_lstadd_front_bonus.c \
 	ft_lstclear_bonus.c \
@@ -55,7 +57,9 @@ BONUS_SRCS = 	ft_lstadd_back_bonus.c \
 	ft_lstsize_bonus.c
 SUPP_SRCS = ft_abs.c \
 	ft_ldiv.c \
-	ft_ltostr.c
+	ft_ltostr.c \
+	ft_printf.c \
+	specifiers.c
 OBJS := $(SRCS:%.c=%.o)
 BONUS_OBJS := $(BONUS_SRCS:%.c=%.o)
 SUPP_OBJS := $(SUPP_SRCS:%.c=%.o)

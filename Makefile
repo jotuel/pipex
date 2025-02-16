@@ -23,11 +23,11 @@ MAKE = make -C
 NAME = pipex
 
 all: $(NAME)
-$(NAME) : $(OBJ) libft.a
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -L $(INCLUDE_DIRS) -lft
+$(NAME) : $(OBJ) libft/libft.a
+	$(CC) $(CFLAGS) -o $@ $(OBJ) -L $(INCLUDE_DIRS) -lft
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
-libft.a:
+/libft/libft.a:
 	$(MAKE) libft all supp
 clean:
 	$(MAKE) libft clean

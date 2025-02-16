@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/01/31 12:59:37 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/06 20:31:32 by jtuomi           \__/    i               */
+/*   Updated: 2025/02/16 15:49:33 by jtuomi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,10 @@ typedef struct s_pipe
 	pid_t pid[2];
 } t_pipe;
 
-bool        commands_in_path(t_pipe *pipex, int i, char *cmdp, char *cmdp1);
+bool        commands_in_path(t_pipe *pipex, int i, int i1, char *cmdp);
 void        util_parse_args(t_pipe *pipex);
-void		src_subprocess(t_pipe *pipex, char **cmd, char **envp);
-void		dest_subprocess(t_pipe *pipex, char **cmd, char **envp);
+void		src_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
+void		dest_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
 void        free_all(t_pipe *pipex);
 pid_t		subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth);
 #endif
