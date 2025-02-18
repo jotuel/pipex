@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 10:23:10 by jtuomi            #+#    #+#             */
-/*   Updated: 2025/02/16 19:25:42 by jtuomi           ###   ########.fr       */
+/*   Updated: 2025/02/18 16:33:05 by jtuomi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	main(int argc, char *argv[], char *envp[])
 	pipex.cmd = parse_args(argv, argc);
 	if (!pipex.cmd)
 		return (perror("malloc"), EXIT_FAILURE);
-	util_parse_args(&pipex);
+	util_parse_args(&pipex, NULL, 0);
 	plumbing(&pipex, 0);
 }
 
@@ -48,7 +48,7 @@ static char	***parse_args(char **argv, int argc)
 	cmd = malloc(sizeof(char ***) * (argc - 2));
 	if (!cmd)
 		return (NULL);
-	while (argv[i])
+	while (argv[i + 1])
 		cmd[i1++] = ft_split(argv[i++], ' ');
 	return (cmd);
 }

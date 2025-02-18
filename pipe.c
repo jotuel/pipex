@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/02/02 18:12:35 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/16 19:28:26 by jtuomi           ###   ########.fr       */
+/*   Updated: 2025/02/18 16:27:39 by jtuomi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,20 @@ void	free_all(t_pipe *pipex)
 	while (pipex->cmd[0][i])
 		free(pipex->cmd[0][i++]);
 	free(pipex->cmd[0][i]);
+	free(pipex->cmd[0]);
 	i = 0;
 	while (pipex->cmd[1][i])
 		free(pipex->cmd[1][i++]);
 	free(pipex->cmd[1][i]);
+	free(pipex->cmd[1]);
+	free(pipex->cmd[2][0]);
+	free(pipex->cmd[2]);
+	free(pipex->cmd);
 	i = 0;
 	while (pipex->path[i])
 		free(pipex->path[i++]);
 	free(pipex->path[i]);
+	free(pipex->path);
 }
 
 void	dest_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd)
@@ -59,6 +65,7 @@ void	dest_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd)
 
 void	src_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd)
 {
+	ft_printf("cmd:%s", cmd[0]);
 	if (-1 == dup2(pipex->pfd[0], STDIN_FILENO))
 	{
 		perror("dup2");
@@ -99,35 +106,28 @@ pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 	exit(errno);
 }
 
-bool	commands_in_path(t_pipe *pipex, int i, int i1, char *cmdp)
+bool	commands_in_path(t_pipe *pipex, int nbr, char *cmdp)
 {
+	int i;
+
+	if (path_is_absolute(pipex, nbr))
+		return (false);
+	i = 0;
 	while (pipex->path[i])
 	{
-		cmdp = ft_strjoin(pipex->path[i], pipex->cmd[0][0]);
+		cmdp = ft_strjoin(pipex->path[i], pipex->cmd[nbr][0]);
+		ft_printf("%s", cmdp);
 		if (0 == access(cmdp, X_OK | F_OK))
 		{
 			free(pipex->cmd[0][0]);
-			pipex->cmd[0][0] = cmdp;
+			pipex->cmd[nbr][0] = cmdp;
 			break ;
 		}
 		else
 			free(cmdp);
 		i++;
 	}
-	while (pipex->path[i1])
-	{
-		cmdp = ft_strjoin(pipex->path[i1], pipex->cmd[1][0]);
-		if (0 == access(cmdp, X_OK | F_OK))
-		{
-			free(pipex->cmd[1][0]);
-			pipex->cmd[1][0] = cmdp;
-			break ;
-		}
-		else
-			free(cmdp);
-		i1++;
-	}
-	if (access(pipex->cmd[0][0], X_OK) && access(pipex->cmd[1][0], X_OK))
+	if (access(pipex->cmd[nbr][0], X_OK | F_OK))
 		return (false);
 	return (true);
 }
