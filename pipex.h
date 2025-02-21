@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/01/31 12:59:37 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/18 17:54:38 by jtuomi           ###   ########.fr       */
+/*   Updated: 2025/02/21 16:59:58 by jtuomi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,12 @@ typedef struct s_pipe
 }			t_pipe;
 
 bool path_is_absolute(t_pipe *pipex, int nbr);
-bool		commands_in_path(t_pipe *pipex, int nbr, char *cmdp);
+bool		command_in_path(t_pipe *pipex, int nbr, char *cmdp, int i);
 void		util_parse_args(t_pipe *pipex, char *tmp, int i);
 void		src_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
-void		dest_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
+void		dst_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
 void		free_all(t_pipe *pipex);
-void        free_all_and_exit(t_pipe *pipex, const char *err);
+void        free_and_exit(t_pipe *pipex, char *cmd, char *err, int error);
 pid_t		subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth);
 
 #endif
