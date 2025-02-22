@@ -11,11 +11,12 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <unistd.h>
 
 void	free_all(t_pipe *pipex)
 {
 	int	i;
-	int i1;
+	int	i1;
 
 	i = 0;
 	i1 = 0;
@@ -39,39 +40,45 @@ void	free_all(t_pipe *pipex)
 	free(pipex->path);
 }
 
-void	dst_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd)
+void	dst_subprocess(t_pipe *pipex, char **cmd, char **envp)
 {
-	ft_printf("%s %s\n", pipex->cmd[0][0], pipex->cmd[0][1]);
-	if (-1 == dup2(pipex->pfd[1], STDOUT_FILENO))
+	if (-1 == dup2(pipex->pfd[0], STDIN_FILENO))
 		free_and_exit(pipex, NULL, "dup2", errno);
-	if (-1 == dup2(fd, STDIN_FILENO))
+	if (-1 == dup2(pipex->fd[1], STDOUT_FILENO))
 		free_and_exit(pipex, NULL, "dup2", errno);
 	if (-1 == close(pipex->pfd[0]))
 		free_and_exit(pipex, NULL, "close", errno);
+	if (-1 == close(pipex->pfd[1]))
+		free_and_exit(pipex, NULL, "close1", errno);
+	if (-1 == close(pipex->fd[1]))
+		free_and_exit(pipex, NULL, "close", errno);
 	if (-1 == execve(cmd[0], cmd, envp))
-		free_and_exit(pipex, NULL, "execve", errno);
+		free_and_exit(pipex, NULL, cmd[0], errno);
 }
 
-void	src_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd)
+void	src_subprocess(t_pipe *pipex, char **cmd, char **envp)
 {
-	ft_printf("%s %s\n", pipex->cmd[1][0], pipex->cmd[1][1]);
-	if (-1 == dup2(pipex->pfd[0], STDIN_FILENO))
+	if (-1 == dup2(pipex->pfd[1], STDOUT_FILENO))
 		free_and_exit(pipex, NULL, "dup2", errno);
-	if (-1 == dup2(fd, STDOUT_FILENO))
+	if (-1 == dup2(pipex->fd[0], STDIN_FILENO))
 		free_and_exit(pipex, NULL, "dup2", errno);
 	if (-1 == close(pipex->pfd[1]))
 		free_and_exit(pipex, NULL, "close", errno);
-	if (-1 == execve(cmd[1], cmd, envp))
-		free_and_exit(pipex, NULL, "execve", errno);
+	if (-1 == close(pipex->pfd[0]))
+		free_and_exit(pipex, NULL, "close", errno);
+	if (-1 == close(pipex->fd[0]))
+		free_and_exit(pipex, NULL, "close", errno);
+	if (-1 == execve(cmd[0], cmd, envp))
+		free_and_exit(pipex, NULL, cmd[0], errno);
 }
 
 pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 {
 	if (!pid)
 		if (!dest)
-			src_subprocess(pipex, pipex->cmd[nth], pipex->envp, pipex->fd[0]);
-		else
-			dst_subprocess(pipex, pipex->cmd[nth], pipex->envp, pipex->fd[1]);
+			src_subprocess(pipex, pipex->cmd[nth], pipex->envp);
+	else
+		dst_subprocess(pipex, pipex->cmd[nth], pipex->envp);
 	else if (-1 == pid)
 		free_and_exit(pipex, NULL, "fork", errno);
 	else
@@ -79,24 +86,27 @@ pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 	return (-1);
 }
 
-bool	command_in_path(t_pipe *pipex, int nbr, char *cmdp, int i)
+bool	command_in_path(t_pipe *pipex, int nbr, char *cmd_p, int i)
 {
-	char *tmp;
+	char	*tmp;
 
-	if (path_is_absolute(pipex, nbr))
-		return (false);
 	while (pipex->path[i])
 	{
 		tmp = ft_strjoin(pipex->path[i], "/");
-		cmdp = ft_strjoin(tmp, pipex->cmd[nbr][0]);
-		if (0 == access(cmdp, X_OK | F_OK))
+		if (!tmp)
+			free_and_exit(pipex, NULL, "malloc", errno);
+		cmd_p = ft_strjoin(tmp, pipex->cmd[nbr][0]);
+		if (!cmd_p)
+			free_and_exit(pipex, NULL, "malloc", errno);
+		free(tmp);
+		if (0 == access(cmd_p, X_OK | F_OK))
 		{
 			free(pipex->cmd[nbr][0]);
-			pipex->cmd[nbr][0] = cmdp;
+			pipex->cmd[nbr][0] = cmd_p;
 			break ;
 		}
 		else
-			free(cmdp);
+			free(cmd_p);
 		i++;
 	}
 	if (access(pipex->cmd[nbr][0], X_OK | F_OK))

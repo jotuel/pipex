@@ -12,9 +12,9 @@
 
 #include "pipex.h"
 
-static char **is_path_in_env(t_pipe *pipex, char *s, char *s1, int i)
+static char	**is_path_in_env(t_pipe *pipex, char *s, char *s1, int i)
 {
-	while(pipex->envp[i])
+	while (pipex->envp[i])
 	{
 		s1 = ft_strnstr(pipex->envp[i], s, 5);
 		if (s1)
@@ -24,7 +24,7 @@ static char **is_path_in_env(t_pipe *pipex, char *s, char *s1, int i)
 	return (NULL);
 }
 
-void	util_parse_args(t_pipe *pipex, char *tmp, int i)
+void	util_parse_args(t_pipe *pipex, int i)
 {
 	pipex->path = is_path_in_env(pipex, "PATH=", NULL, 0);
 	if (!pipex->path)
@@ -32,24 +32,20 @@ void	util_parse_args(t_pipe *pipex, char *tmp, int i)
 	i = 0;
 	while (pipex->cmd[i])
 	{
-		if (!command_in_path(pipex, i, NULL, 0))
-		{
-			tmp = ft_strtrim(pipex->cmd[i][0], "/");
-			if (!tmp)
-				free_and_exit(pipex, NULL, "malloc", errno);
-			free(pipex->cmd[i][0]);
-			pipex->cmd[i][0] = tmp;
-		}
+		if (path_is_absolute(pipex, i))
+			;
+		else
+			command_in_path(pipex, i, NULL, 0);
 		i++;
 	}
 }
 
-bool path_is_absolute(t_pipe *pipex, int nbr)
+bool	path_is_absolute(t_pipe *pipex, int nbr)
 {
 	return (ft_strchr(pipex->cmd[nbr][0], '/'));
 }
 
-void free_and_exit(t_pipe *pipex, char *cmd, char *err, int error)
+void	free_and_exit(t_pipe *pipex, char *cmd, char *err, int error)
 {
 	if (!error)
 		return ;
