@@ -24,6 +24,24 @@ static char	**is_path_in_env(t_pipe *pipex, char *s, char *s1, int i)
 	return (NULL);
 }
 
+static void command_not_found(t_pipe *pipe, int nbr)
+{
+	char **tmp;
+	char *s;
+	int i;
+
+	tmp = pipe->cmd[nbr];
+	s = ft_strjoin("/usr/lib/command-not-found ", pipe->cmd[nbr][0]);
+	if (!s)
+		free_and_exit(pipe, NULL, "malloc", errno);
+	pipe->cmd[nbr] = ft_split(s, ' ');
+	free(s);
+	i = 0;
+	while(tmp[i])
+		free(tmp[i++]);
+	free(tmp);
+}
+
 void	util_parse_args(t_pipe *pipex, int i)
 {
 	pipex->path = is_path_in_env(pipex, "PATH=", NULL, 0);
@@ -34,8 +52,8 @@ void	util_parse_args(t_pipe *pipex, int i)
 	{
 		if (path_is_absolute(pipex, i))
 			;
-		else
-			command_in_path(pipex, i, NULL, 0);
+		else if (!command_in_path(pipex, i, NULL, 0))
+			command_not_found(pipex, i);
 		i++;
 	}
 }
@@ -49,10 +67,17 @@ void	free_and_exit(t_pipe *pipex, char *cmd, char *err, int error)
 {
 	if (!error)
 		return ;
+	else if (error == 2)
+		error = 127;
+	else if (error == 13)
+		error = 126;
 	if (!cmd)
 		perror(err);
 	else
-		ft_printf("pipex: %s: %s", err, cmd);
+	{
+		ft_putstr_fd("pipex:", 2);
+		perror(cmd);
+	}
 	free_all(pipex);
 	exit(error);
 }
