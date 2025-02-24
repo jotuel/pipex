@@ -6,13 +6,16 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 17:40:24 by jtuomi            #+#    #+#             */
-/*   Updated: 2025/02/21 17:46:39 by jtuomi           ###   ########.fr       */
+/*   Updated: 2025/02/24 19:21:42 by jtuomi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 #include <unistd.h>
 
+/*
+** frees all heap memory.
+ */
 void	free_all(t_pipe *pipex)
 {
 	int	i;
@@ -40,6 +43,11 @@ void	free_all(t_pipe *pipex)
 	free(pipex->path);
 }
 
+/*
+** duplicates pipe read end to stdin and file to stdout.
+** then closes excess file descriptors and executes command.
+** if anything fails it prints error message and exits.
+ */
 void	dst_subprocess(t_pipe *pipex, char **cmd, char **envp)
 {
 	if (-1 == dup2(pipex->pfd[0], STDIN_FILENO))
@@ -52,10 +60,19 @@ void	dst_subprocess(t_pipe *pipex, char **cmd, char **envp)
 		free_and_exit(pipex, NULL, "close1", errno);
 	if (-1 == close(pipex->fd[1]))
 		free_and_exit(pipex, NULL, "close", errno);
+	pipex->fd[1] = -1;
+	if (-1 == close(pipex->fd[0]))
+		free_and_exit(pipex, NULL, "close", errno);
+	pipex->fd[0] = -1;
 	if (-1 == execve(cmd[0], cmd, envp))
-		free_and_exit(pipex, NULL, cmd[0], errno);
+		free_and_exit(pipex, cmd[0], cmd[0], errno);
 }
 
+/*
+** duplicates file to stdin and pipe write end to stdout.
+** then closes excess file descriptors and executes command.
+** if anything fails it prints error message and exits.
+ */
 void	src_subprocess(t_pipe *pipex, char **cmd, char **envp)
 {
 	if (-1 == dup2(pipex->pfd[1], STDOUT_FILENO))
@@ -68,10 +85,19 @@ void	src_subprocess(t_pipe *pipex, char **cmd, char **envp)
 		free_and_exit(pipex, NULL, "close", errno);
 	if (-1 == close(pipex->fd[0]))
 		free_and_exit(pipex, NULL, "close", errno);
+	pipex->fd[0] = -1;
+	if (-1 == close(pipex->fd[1]))
+		free_and_exit(pipex, NULL, "close", errno);
+	pipex->fd[1] = -1;
 	if (-1 == execve(cmd[0], cmd, envp))
-		free_and_exit(pipex, NULL, cmd[0], errno);
+		free_and_exit(pipex, cmd[0], cmd[0], errno);
 }
 
+/*
+** if its the original process it has subprocessed pid and returns
+** with that, otherwise it goes off based on the value of dest flag
+** to execute in either src_ or dst_subprocess function.
+ */
 pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 {
 	if (!pid)
@@ -86,6 +112,11 @@ pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 	return (-1);
 }
 
+/*
+** this join / to end of every file in path and that to command
+** then checks with access if file exists and tries to see
+** whether that file is also executable (has those rights).
+ */
 bool	command_in_path(t_pipe *pipex, int nbr, char *cmd_p, int i)
 {
 	char	*tmp;
@@ -109,7 +140,7 @@ bool	command_in_path(t_pipe *pipex, int nbr, char *cmd_p, int i)
 			free(cmd_p);
 		i++;
 	}
-	if (access(pipex->cmd[nbr][0], X_OK | F_OK))
+	if (!access(pipex->cmd[nbr][0], X_OK | F_OK) && path_is_absolute(pipex, nbr))
 		return (false);
 	return (true);
 }
