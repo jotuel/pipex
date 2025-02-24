@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 17:09:01 by jtuomi            #+#    #+#             */
-/*   Updated: 2025/02/24 19:28:03 by jtuomi           ###   ########.fr       */
+/*   Updated: 2025/02/24 22:30:14 by jtuomi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 ** searches env for PATH= and if found splits it. if path would be set as only
 ** : signs might lead to segfault. this is an edge case not covered as that
 ** wouldn't be a very good thing to do.
- */
+*/
 static char	**is_path_in_env(t_pipe *pipex, char *s, char *s1, int i)
 {
 	while (pipex->envp[i])
@@ -33,7 +33,7 @@ static char	**is_path_in_env(t_pipe *pipex, char *s, char *s1, int i)
 ** checks whether command can be found and if it can't replaced the command
 ** later to be executed by /usr/lib/command-not-found to offer suggestions
 ** how to install or fix a typo etc.
- */
+*/
 static void	command_not_found(t_pipe *pipe, int nbr)
 {
 	char	**tmp;
@@ -55,7 +55,7 @@ static void	command_not_found(t_pipe *pipe, int nbr)
 /*
 ** this seeks path, check what kind of command we're dealing with and
 ** calls the other functions accordingly.
- */
+*/
 void	util_parse_args(t_pipe *pipex, int i)
 {
 	pipex->path = is_path_in_env(pipex, "PATH=", NULL, 0);
@@ -65,10 +65,10 @@ void	util_parse_args(t_pipe *pipex, int i)
 	while (pipex->cmd[i])
 	{
 		if (path_is_absolute(pipex, i))
+		{
 			if (!access(pipex->cmd[i][0], F_OK | X_OK))
 				command_not_found(pipex, i);
-			else
-				;
+		}
 		else if (command_in_path(pipex, i, NULL, 0))
 			command_not_found(pipex, i);
 		i++;

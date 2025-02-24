@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
 #include "libft/libft.h"
+#include "pipex.h"
 
 static void	plumbing(t_pipe *pipe, int status);
 static char	***parse_args(char **argv, int argc, t_pipe *pipe);
@@ -22,7 +22,7 @@ static bool	not_all_space(char **argv);
 ** -> second cmd -> output file. it fails if input file doesn't exist, either
 ** is a directory or no path is set. otherwise it forks and executes cmd's
 ** on subprocesses
- */
+*/
 int	main(int argc, char *argv[], char *envp[])
 {
 	static t_pipe	pipex;
@@ -53,7 +53,7 @@ int	main(int argc, char *argv[], char *envp[])
 ** stores them in the array and returns them to caller.
 **
 ** if anything allocation fails it exits, freeing all.
- */
+*/
 static char	***parse_args(char **argv, int argc, t_pipe *pipe)
 {
 	char	***cmd;
@@ -71,7 +71,6 @@ static char	***parse_args(char **argv, int argc, t_pipe *pipe)
 		if (!cmd[i1++])
 			free_and_exit(pipe, NULL, "malloc", errno);
 	}
-
 	return (cmd);
 }
 
@@ -79,7 +78,7 @@ static char	***parse_args(char **argv, int argc, t_pipe *pipe)
 ** creates forks, closes pipe file descriptors and waits for sub-
 ** processes to finish. if both terminate returns the error value
 ** of the last one or goes back to main (returning 0)
- */
+*/
 static void	plumbing(t_pipe *pipe, int status)
 {
 	pipe->pid[0] = subprocess(pipe, fork(), false, 0);
@@ -97,12 +96,12 @@ static void	plumbing(t_pipe *pipe, int status)
 
 /*
 ** checks if all characters are ' ', the character used to split.
- */
+*/
 static bool	not_all_space(char **argv)
 {
-	int	i;
-	int	i1;
-	bool flag;
+	int		i;
+	int		i1;
+	bool	flag;
 
 	i = 0;
 	i1 = 0;
@@ -119,7 +118,7 @@ static bool	not_all_space(char **argv)
 			i1 += 1;
 		}
 		if (flag == true)
-			break;
+			break ;
 		i += 1;
 	}
 	return (flag);

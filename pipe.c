@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 17:40:24 by jtuomi            #+#    #+#             */
-/*   Updated: 2025/02/24 19:21:42 by jtuomi           ###   ########.fr       */
+/*   Updated: 2025/02/24 22:27:16 by jtuomi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 /*
 ** frees all heap memory.
- */
+*/
 void	free_all(t_pipe *pipex)
 {
 	int	i;
@@ -47,7 +47,7 @@ void	free_all(t_pipe *pipex)
 ** duplicates pipe read end to stdin and file to stdout.
 ** then closes excess file descriptors and executes command.
 ** if anything fails it prints error message and exits.
- */
+*/
 void	dst_subprocess(t_pipe *pipex, char **cmd, char **envp)
 {
 	if (-1 == dup2(pipex->pfd[0], STDIN_FILENO))
@@ -72,7 +72,7 @@ void	dst_subprocess(t_pipe *pipex, char **cmd, char **envp)
 ** duplicates file to stdin and pipe write end to stdout.
 ** then closes excess file descriptors and executes command.
 ** if anything fails it prints error message and exits.
- */
+*/
 void	src_subprocess(t_pipe *pipex, char **cmd, char **envp)
 {
 	if (-1 == dup2(pipex->pfd[1], STDOUT_FILENO))
@@ -97,7 +97,7 @@ void	src_subprocess(t_pipe *pipex, char **cmd, char **envp)
 ** if its the original process it has subprocessed pid and returns
 ** with that, otherwise it goes off based on the value of dest flag
 ** to execute in either src_ or dst_subprocess function.
- */
+*/
 pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 {
 	if (!pid)
@@ -116,7 +116,7 @@ pid_t	subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth)
 ** this join / to end of every file in path and that to command
 ** then checks with access if file exists and tries to see
 ** whether that file is also executable (has those rights).
- */
+*/
 bool	command_in_path(t_pipe *pipex, int nbr, char *cmd_p, int i)
 {
 	char	*tmp;
@@ -140,7 +140,8 @@ bool	command_in_path(t_pipe *pipex, int nbr, char *cmd_p, int i)
 			free(cmd_p);
 		i++;
 	}
-	if (!access(pipex->cmd[nbr][0], X_OK | F_OK) && path_is_absolute(pipex, nbr))
+	if (!access(pipex->cmd[nbr][0], X_OK | F_OK) && path_is_absolute(pipex,
+			nbr))
 		return (false);
 	return (true);
 }
