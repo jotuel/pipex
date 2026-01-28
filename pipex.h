@@ -37,10 +37,13 @@ typedef struct s_pipe
 	pid_t	pid[2];
 }			t_pipe;
 
-bool		commands_in_path(t_pipe *pipex, int i, int i1, char *cmdp);
-void		util_parse_args(t_pipe *pipex, char *tmp, int i);
-void		src_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
-void		dest_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
+bool		path_is_absolute(t_pipe *pipex, int nbr);
+bool		command_in_path(t_pipe *pipex, int nbr, char *cmdp, int i);
+void		util_parse_args(t_pipe *pipex, int i);
+void		src_subprocess(t_pipe *pipex, char **cmd, char **envp);
+void		dst_subprocess(t_pipe *pipex, char **cmd, char **envp);
 void		free_all(t_pipe *pipex);
+void		free_and_exit(t_pipe *pipex, char *cmd, char *err, int error);
 pid_t		subprocess(t_pipe *pipex, pid_t pid, bool dest, int nth);
+
 #endif
