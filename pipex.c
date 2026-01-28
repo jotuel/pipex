@@ -20,11 +20,10 @@ int	main(int argc, char *argv[], char *envp[])
 {
 	static t_pipe	pipex;
 
-	if (argc != 5 && argv[1] && argv[2] && argv[3] && argv[4])
-		return (perror("Usage: pipex <file> <cmd> <cmd> <file>\n"),
-			EXIT_FAILURE);
+	if (argc != 5 || !argv[1] || !argv[2] || !argv[3] || !argv[4])
+		return (ft_putendl_fd(WRONG_ARGUMENTS, 2), EXIT_FAILURE);
 	else if (*envp == NULL)
-		return (perror("No enviroment pointer.\n"), EXIT_FAILURE);
+		return (ft_putendl_fd("No environment", 2), EXIT_FAILURE);
 	pipex.envp = envp;
 	pipex.fd[0] = open(argv[1], O_RDONLY);
 	pipex.fd[1] = open(argv[argc - 1], O_CREAT, 0644, O_WRONLY);
@@ -33,7 +32,7 @@ int	main(int argc, char *argv[], char *envp[])
 	pipex.cmd = parse_args(argv, argc);
 	if (!pipex.cmd)
 		return (perror("malloc"), EXIT_FAILURE);
-	util_parse_args(&pipex);
+	util_parse_args(&pipex, NULL, 0);
 	plumbing(&pipex, 0);
 }
 

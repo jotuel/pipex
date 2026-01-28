@@ -6,7 +6,7 @@
 /*   By: jtuomi <jtuomi@student.hive.fi>           \__/  \__/ e _>(_| | --    */
 /*                                                 /  \__/  \ .  _  _ |       */
 /*   Created: 2025/01/31 12:59:37 by jtuomi        \__/  \__/ f (_)(_)|       */
-/*   Updated: 2025/02/16 15:49:33 by jtuomi           ###   ########.fr       */
+/*   Updated: 2025/02/16 15:49:33 by jtuomi           \__/    i               */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 # include <sys/wait.h>
 # include <unistd.h>
 
+#define WRONG_ARGUMENTS "Usage: pipex <file> <cmd> <cmd> <file>"
+
 typedef struct s_pipe
 {
 	char	***cmd;
@@ -36,7 +38,7 @@ typedef struct s_pipe
 }			t_pipe;
 
 bool		commands_in_path(t_pipe *pipex, int i, int i1, char *cmdp);
-void		util_parse_args(t_pipe *pipex);
+void		util_parse_args(t_pipe *pipex, char *tmp, int i);
 void		src_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
 void		dest_subprocess(t_pipe *pipex, char **cmd, char **envp, int fd);
 void		free_all(t_pipe *pipex);
